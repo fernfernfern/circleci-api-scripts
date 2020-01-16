@@ -4,8 +4,18 @@ import json
 import os
 import yaml
 
-Token = os.getenv("CIRCLECI_TOKEN")
+# default to using the cli token if it's available
+try: 
+  with open(os.path.expanduser("~/.circleci/cli.yml"), 'r') as stream:
+    cli_token = yaml.safe_load(stream).get('token')
+except Exception as e:
+  cli_token = None
+  pass
 
+if cli_token:
+  Token = cli_token
+else:
+  Token = os.getenv("CIRCLECI_TOKEN")
 
 # Get data from an endpoint and return JSON dict, auto inject token
 def get_data(endpoint, slug=""):
